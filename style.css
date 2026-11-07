@@ -192,7 +192,8 @@ textarea:focus { outline: 0; border: 2px solid var(--text); padding: 9px 11px; }
 }
 /* 채점 단추 두 개 — 한 줄에 반반 */
 .score-row { display: flex; gap: 8px; margin-top: 10px; }
-.score-row .btn { flex: 1 1 0; min-width: 0; margin-top: 0; padding: 0 6px; font-size: 1rem; }
+/* 폰 폭에서도 «⏳ AI 채점 중… 33%» 가 한 줄에 들어가도록 글자 크기를 화면 폭에 맞춰 줄인다 */
+.score-row .btn { flex: 1 1 0; min-width: 0; margin-top: 0; padding: 0 6px; font-size: clamp(0.82rem, 3.7vw, 1rem); white-space: nowrap; font-variant-numeric: tabular-nums; }
 /* 채점 끝난 단추 — 흰 바탕, 초록 테두리·글씨 */
 .btn.done { color: var(--accent); background: var(--card); border: 1px solid var(--accent); }
 .btn.ghost { color: var(--text); background: var(--card); border: 1px solid var(--line); }
@@ -270,7 +271,12 @@ textarea:focus { outline: 0; border: 2px solid var(--text); padding: 9px 11px; }
 .lg-warn { background: var(--warn-bg); border-color: var(--warn-line); }
 .lg-warn .lg-note-title { color: var(--warn-text); }
 
+/* AI 채점 진행 — 초록 막대(분류기 초록) + «33% (10/30)» */
 .progress { margin: 12px 0 0; font-weight: 600; }
+.bar { height: 12px; overflow: hidden; background: var(--line); border-radius: 999px; }
+.bar-fill { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
+.bar-text { margin: 6px 0 0; text-align: center; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
 
 /* 채점 탭 결과 상자 — 안내 상자와 같은 테두리·모서리 */
 .intro .intro-line.last { margin-bottom: 0 !important; }

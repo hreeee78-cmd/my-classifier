@@ -101,12 +101,21 @@
   // 채점 단추 글자 — 평소 / 채점 중 / 끝남. 끝남은 .done 모양(흰 바탕·초록 테두리).
   var SCORE_LABEL = {
     'btn-score': { idle: '규칙으로 채점', busy: '⏳ 채점 중…', done: '✓ 규칙 채점 완료' },
-    'btn-ai': { idle: 'AI로 채점', busy: '⏳ 채점 중…', done: '✓ AI 채점 완료' }
+    'btn-ai': { idle: 'AI로 채점', busy: '⏳ AI 채점 중… 0%', done: '✓ AI 채점 완료' }
   };
   function scoreBtn(id, mode) {
     var b = $(id);
     b.textContent = SCORE_LABEL[id][mode];
     b.classList.toggle('done', mode === 'done');
+  }
+
+  // AI 채점 진행률 — 실제로 답을 받아 본(끝난) 문장 수로만 계산한다. 단추 글자와 막대를 함께 바꾼다.
+  function setAiProgress(done, total) {
+    var pct = total ? Math.floor(done * 100 / total) : 0;
+    $('btn-ai').textContent = '⏳ AI 채점 중… ' + pct + '%';
+    $('ai-bar').style.width = pct + '%';
+    $('ai-pct').textContent = pct + '% (' + done + '/' + total + ')';
+    $('ai-progress').querySelector('.bar').setAttribute('aria-valuenow', String(pct));
   }
 
   function onClassify() {
@@ -341,6 +350,7 @@
     if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setBusy(true);
     scoreBtn('btn-ai', 'busy');
+    $('ai-bar').style.width = '0%';
     $('ai-out').hidden = true;
     var prog = $('ai-progress');
     try {
@@ -352,7 +362,7 @@
       var batches = chunk(items, BATCH);
 
       prog.hidden = false;
-      prog.textContent = 'AI 채점 중… 0/' + n;
+      setAiProgress(0, n);
 
       var predById = {};
       var models = [];
@@ -370,9 +380,8 @@
         }
         batchLog.push({ batch: b + 1, ids: batches[b].map(function (x) { return x.id; }), attempts: sent.attempts });
         done += batches[b].length;
-        prog.textContent = 'AI 채점 중… ' + done + '/' + n;
+        setAiProgress(done, n);
       }
-      prog.textContent = 'AI 채점 끝 ' + n + '/' + n;
 
       var rules = Rules.evaluate(answers, state.criteria, state.keywords, Mask.mask);
       var ai = tallyAI(answers, predById, rules.spendName);

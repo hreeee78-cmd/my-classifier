@@ -82,7 +82,10 @@
         <button id="btn-score" class="btn" type="button">규칙으로 채점</button>
         <button id="btn-ai" class="btn" type="button">AI로 채점</button>
       </div>
-      <p id="ai-progress" class="progress" role="status" hidden></p>
+      <div id="ai-progress" class="progress" role="status" aria-live="polite" hidden>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar-fill" id="ai-bar"></span></div>
+        <p class="bar-text" id="ai-pct"></p>
+      </div>
 
       <div id="ai-out" hidden>
         <div class="box">
