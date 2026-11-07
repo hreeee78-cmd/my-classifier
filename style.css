@@ -113,7 +113,8 @@ h2 { font-size: 1.05rem; margin: 22px 0 8px; }
   color: var(--muted);
   font-size: 0.8rem;
 }
-.intro .intro-more { margin-top: 12px; }
+.intro .intro-more { margin-top: 12px; display: flex; align-items: flex-start; gap: 0.35em; }
+.intro-more .nobreak { display: block; white-space: nowrap; }
 .examples { display: flex; flex-direction: column; gap: 6px; }
 .example {
   display: block;
