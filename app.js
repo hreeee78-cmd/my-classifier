@@ -8,6 +8,7 @@
   var state = { criteria: null, keywords: null, practice: null };
   var BATCH = 10;               // AI 채점은 10개씩
   var CLIENT_WAIT_MS = 75000;   // 서버(60초) 보다 조금 더 기다린다
+  var RETRY_WAIT_MS = 5000;     // 503 · 429 로 거절되면 이만큼 쉬었다가 한 번만 다시 보낸다
   var busy = false;
   var lastAi = null;            // 내려받기용
 
@@ -46,6 +47,7 @@
         return {
           ok: false,
           timeout: !!(j && j.timeout) || res.status === 504,
+          upstream: (j && j.upstream_status) || null,
           error: (j && j.error) || ('서버 응답 오류 (' + res.status + ')')
         };
       });
@@ -202,15 +204,22 @@
     return out;
   }
 
-  // 한 묶음을 보낸다. 타임아웃이면 한 번만 다시 보낸다. 다른 실패는 다시 보내지 않는다.
+  // 한 묶음을 보낸다. 시간 초과는 바로, 503(붐빔) · 429(한도)는 잠깐 쉬었다가 한 번만 다시 보낸다.
+  // 그 밖의 실패는 다시 보내지 않는다.
   function sendBatch(items) {
     var attempts = [];
     function note(res) {
-      attempts.push({ ok: !!res.ok, timeout: !!res.timeout, error: res.ok ? null : res.error, model: res.model || null });
+      attempts.push({ ok: !!res.ok, timeout: !!res.timeout, upstream_status: res.upstream || null,
+        error: res.ok ? null : res.error, model: res.model || null });
       return res;
     }
+    function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
     return callAI(items).then(note).then(function (res) {
-      if (!res.ok && res.timeout) return callAI(items).then(note);
+      if (res.ok) return res;
+      if (res.timeout) return callAI(items).then(note);
+      if (res.upstream === 503 || res.upstream === 429) {
+        return sleep(RETRY_WAIT_MS).then(function () { return callAI(items); }).then(note);
+      }
       return res;
     }).then(function (res) { return { res: res, attempts: attempts }; });
   }
@@ -306,7 +315,7 @@
       addRow(body, '답을 못 받은 문장', '-', ai.unanswered + '건');
 
       $('ai-cond').textContent =
-        '잰 조건: AI = ' + modelName + ', 가린 문장 ' + BATCH + '개씩 ' + batches.length + '번 · 시간 초과 묶음은 한 번만 다시 보냄 · ' +
+        '잰 조건: AI = ' + modelName + ', 가린 문장 ' + BATCH + '개씩 ' + batches.length + '번 · 시간 초과 · 503 · 429 묶음은 한 번만 다시 보냄(503·429는 ' + (RETRY_WAIT_MS / 1000) + '초 쉼) · ' +
         '답을 못 받은 문장 ' + ai.unanswered + '건은 오답으로 셈 · 규칙 = keywords.json v' + state.keywords.version +
         ' · 정답 data/answer.json ' + n + '개. 정답은 AI 초안을 사람이 확인해 확정한 것이라 점수는 낙관적으로 읽습니다.' +
         (firstError ? ' (AI 실패 이유: ' + firstError + ')' : '');
@@ -316,7 +325,7 @@
         model: modelName,
         conditions: {
           sentences: n, batch_size: BATCH, masked_before_sending: true,
-          retry: '시간 초과 묶음만 한 번 다시 보냄',
+          retry: '시간 초과 · 503 · 429 묶음만 한 번 다시 보냄 (503·429는 ' + (RETRY_WAIT_MS / 1000) + '초 쉼)',
           unanswered_counted_as_wrong: true,
           keywords_version: state.keywords.version, criteria_version: state.criteria.version
         },

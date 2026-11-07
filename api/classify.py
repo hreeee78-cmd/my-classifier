@@ -82,10 +82,12 @@ def build_schema(c):
     }
 
 
-def fail(status, message, timeout=False):
+def fail(status, message, timeout=False, upstream=None):
     payload = {"ok": False, "error": message}
     if timeout:
         payload["timeout"] = True
+    if upstream:
+        payload["upstream_status"] = upstream   # Gemini 가 돌려준 상태 번호 (화면이 다시 보낼지 정하는 데 쓴다)
     return status, payload
 
 
@@ -192,7 +194,7 @@ def run(raw):
             detail = (json.loads(e.read().decode("utf-8", "replace")).get("error") or {}).get("message", "")
         except Exception:
             pass
-        return fail(502, "Gemini 가 오류를 돌려줬습니다 (%s) %s" % (e.code, detail[:200]))
+        return fail(502, "Gemini 가 오류를 돌려줬습니다 (%s) %s" % (e.code, detail[:200]), upstream=e.code)
     except Exception as e:  # 타임아웃 · 연결 실패 · 깨진 응답
         if is_timeout(e):
             return fail(504, "Gemini 가 %d초 안에 답하지 않았습니다" % WAIT_SECONDS, timeout=True)
