@@ -67,15 +67,29 @@
   }
 
   // ---- 분류 ----
+  // 실패 이유를 쉬운 말로 바꾼다. 원래 이유(detail)는 아래 작은 글씨로 따로 둔다.
+  function friendlyWhy(res) {
+    if (res.ok) return 'AI가 이 문장은 답하지 않았어요';
+    if (res.timeout) return 'AI 답이 늦어요. 잠시 뒤에 다시 해 보세요';
+    if (res.upstream === 503 || res.upstream === 429) return 'AI가 지금 바빠요. 잠시 뒤에 다시 해 보세요';
+    if (/GEMINI_API_KEY/.test(res.error || '')) return 'AI 설정이 아직 안 돼 있어요. 관리자에게 알려 주세요';
+    return 'AI에 연결하지 못했어요. 잠시 뒤에 다시 해 보세요';
+  }
+
   // why 가 있으면 규칙으로 간 것(AI 실패 이유), 없으면 AI 가 가른 것
-  function showResult(masked, cat, urg, reason, src, why) {
+  function showResult(masked, cat, urg, reason, src, why, detail) {
     $('r-masked').textContent = masked;
     $('r-cat').textContent = cat;
-    $('r-urg').textContent = urg;
+    var u = $('r-urg');
+    u.textContent = urg;
+    // 긴급도 색: 첫 단계(높음)부터 0, 1, 2 — 이름은 criteria.json 에서 가져온다
+    u.dataset.level = String(state.criteria.urgency.map(function (x) { return x.name; }).indexOf(urg));
     $('r-reason').textContent = reason;
     $('r-src').textContent = src;
     $('r-why').textContent = why || '';
     $('r-why').hidden = !why;
+    $('r-detail').textContent = detail ? '자세한 이유: ' + detail : '';
+    $('r-detail').hidden = !detail;
     $('result').hidden = false;
   }
 
@@ -87,23 +101,23 @@
   function onClassify() {
     if (busy) return;
     var raw = $('req').value.trim();
-    if (!raw) { setStatus('요청 한 줄을 먼저 넣어 주세요.'); return; }
-    if (!state.criteria || !state.keywords) { setStatus('기준 파일을 아직 읽지 못했습니다.'); return; }
+    if (!raw) { setStatus('요청을 한 줄 먼저 적어 주세요.'); return; }
+    if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setStatus('');
     var masked = Mask.mask(raw);
     var btn = $('btn-classify');
     setBusy(true);
-    btn.textContent = 'AI가 분류하는 중…';
+    btn.textContent = 'AI가 읽고 있어요…';
 
     callAI([{ id: 'q', text: masked }]).then(function (res) {
       var hit = res.ok && res.results.filter(function (r) { return r.id === 'q'; })[0];
       if (hit) {
-        showResult(masked, hit.category, hit.urgency, hit.reason, 'AI(' + res.model + ')가 갈랐습니다');
+        showResult(masked, hit.category, hit.urgency, hit.reason, 'AI가 나눴어요 · ' + res.model);
         return;
       }
-      var why = res.ok ? 'AI가 이 문장의 답을 주지 않았습니다' : res.error;
       var out = Rules.classify(masked, state.criteria, state.keywords);
-      showResult(masked, out.category, out.urgency, out.reason, 'AI 없이 규칙으로 갈랐습니다', 'AI 실패: ' + why);
+      showResult(masked, out.category, out.urgency, out.reason, 'AI 연결이 안 돼서 규칙으로 나눴어요',
+        friendlyWhy(res), res.ok ? '' : res.error);
     }).then(function () {
       setBusy(false);
       btn.textContent = '분류하기';
@@ -150,7 +164,7 @@
   // ---- 채점: 규칙 ----
   function onScore() {
     if (busy) return;
-    if (!state.criteria || !state.keywords) { setStatus('기준 파일을 아직 읽지 못했습니다.'); return; }
+    if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setStatus('정답 파일을 읽는 중…');
     loadJson('data/answer.json').then(function (answers) {
       setStatus('');
@@ -264,7 +278,7 @@
 
   async function onAiScore() {
     if (busy) return;
-    if (!state.criteria || !state.keywords) { setStatus('기준 파일을 아직 읽지 못했습니다.'); return; }
+    if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setBusy(true);
     $('ai-out').hidden = true;
     var prog = $('ai-progress');

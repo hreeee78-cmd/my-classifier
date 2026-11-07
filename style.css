@@ -38,7 +38,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-  line-height: 1.55;
+  font-size: 1.0625rem;
+  line-height: 1.65;
   overflow-wrap: anywhere;
 }
 
@@ -146,9 +147,23 @@ textarea:focus { outline: 0; border: 2px solid var(--text); padding: 9px 11px; }
 }
 .row .k { flex: 0 0 4.5rem; font-size: 0.85rem; color: var(--muted); padding-top: 1px; }
 .row .v { flex: 1; min-width: 0; }
-.row .v.strong { font-weight: 700; }
+.row .v.big { font-size: 1.35rem; font-weight: 700; line-height: 1.35; }
+.row .v.pill {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 1px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--line);
+  color: var(--text);
+}
+.row .v.pill[data-level="0"] { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-line); }
+.row .v.pill[data-level="1"] { background: var(--notice-bg); color: var(--text); border: 1px solid var(--notice-line); }
+.row .v.pill[data-level="2"] { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.row:first-child .v { font-size: 0.9rem; color: var(--muted); }
 .src { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); }
 .src + .src { margin-top: 2px; }
+.src.detail { font-size: 0.75rem; opacity: 0.85; }
 
 /* 칸과 긴급도의 뜻 */
 .legend { margin-top: 14px; color: var(--muted); font-size: 0.9rem; }

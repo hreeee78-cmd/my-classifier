@@ -34,11 +34,12 @@
 
       <div id="result" class="card" hidden>
         <div class="row"><span class="k">가린 문장</span><span class="v" id="r-masked"></span></div>
-        <div class="row"><span class="k">칸</span><span class="v strong" id="r-cat"></span></div>
-        <div class="row"><span class="k">긴급도</span><span class="v strong" id="r-urg"></span></div>
+        <div class="row"><span class="k">칸</span><span class="v big" id="r-cat"></span></div>
+        <div class="row"><span class="k">긴급도</span><span class="v pill" id="r-urg"></span></div>
         <div class="row"><span class="k">이유</span><span class="v" id="r-reason"></span></div>
         <p id="r-src" class="src"></p>
         <p id="r-why" class="src" hidden></p>
+        <p id="r-detail" class="src detail" hidden></p>
       </div>
 
       <details class="legend">
@@ -48,7 +49,7 @@
     </section>
 
     <section id="panel-score" role="tabpanel" aria-labelledby="tab-score" hidden>
-      <p class="hint">정답 파일의 문장을 판정해 맞춰 봅니다. 단추를 누를 때만 정답 파일을 엽니다.</p>
+      <p class="hint">정답이 있는 문장으로 점수를 매겨요. 단추를 누를 때만 정답 파일을 열어요.</p>
       <button id="btn-score" class="btn" type="button">규칙으로 채점</button>
       <button id="btn-ai" class="btn" type="button">AI로 채점</button>
       <p id="ai-progress" class="progress" role="status" hidden></p>
