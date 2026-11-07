@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>요청 분류기 · 규칙 기준선</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wrap">
+    <h1>요청 분류기 <span class="tag">규칙 기준선 · AI 없음</span></h1>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-classify" aria-controls="panel-classify" aria-selected="true">분류</button>
+      <button class="tab" role="tab" id="tab-score" aria-controls="panel-score" aria-selected="false">채점</button>
+    </div>
+
+    <p id="status" class="status" role="status" hidden></p>
+
+    <section id="panel-classify" role="tabpanel" aria-labelledby="tab-classify">
+      <p class="notice">실제 이름 · 계좌 · 주민번호는 넣지 마세요</p>
+      <label for="req" class="label">요청 한 줄</label>
+      <textarea id="req" rows="3" placeholder="예) 거래처 대금 오늘까지 입금해야 해요"></textarea>
+      <button id="btn-classify" class="btn" type="button">분류</button>
+
+      <dl id="result" class="result" hidden>
+        <dt>가린 문장</dt><dd id="r-masked"></dd>
+        <dt>칸</dt><dd id="r-cat" class="big"></dd>
+        <dt>긴급도</dt><dd id="r-urg" class="big"></dd>
+        <dt>이유</dt><dd id="r-reason"></dd>
+        <dt>가른 쪽</dt><dd id="r-src"></dd>
+      </dl>
+      <p id="r-note" class="fallback" hidden></p>
+    </section>
+
+    <section id="panel-score" role="tabpanel" aria-labelledby="tab-score" hidden>
+      <p class="hint">정답 파일의 문장을 규칙으로 판정해 맞춰 봅니다. 단추를 누를 때만 정답 파일을 엽니다.</p>
+      <button id="btn-score" class="btn" type="button">규칙으로 채점</button>
+      <button id="btn-ai" class="btn" type="button">AI로 채점</button>
+      <p id="ai-progress" class="progress" role="status" hidden></p>
+
+      <div id="ai-out" hidden>
+        <h2>규칙 · AI 나란히</h2>
+        <table class="cmp">
+          <thead><tr><th scope="col">지표</th><th scope="col">규칙</th><th scope="col" id="th-ai">AI</th></tr></thead>
+          <tbody id="cmp-body"></tbody>
+        </table>
+        <p id="ai-cond" class="cond"></p>
+        <button id="btn-download" class="btn secondary" type="button">AI 채점 결과 내려받기</button>
+      </div>
+
+      <div id="score-out" hidden>
+        <ul class="metrics">
+          <li><span class="m-label">칸 정확도</span><span class="m-val" id="m-cat"></span></li>
+          <li><span class="m-label">긴급도 정확도</span><span class="m-val" id="m-urg"></span></li>
+          <li><span class="m-label">둘 다 맞은 수</span><span class="m-val" id="m-both"></span></li>
+          <li class="warn"><span class="m-label" id="m-spend-label"></span><span class="m-val" id="m-spend"></span></li>
+        </ul>
+        <p id="conditions" class="cond"></p>
+        <h2>틀린 문장 <span id="wrong-count"></span></h2>
+        <ol id="wrong-list" class="wrong"></ol>
+      </div>
+    </section>
+  </main>
+
+  <script src="mask.js"></script>
+  <script src="rules.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
