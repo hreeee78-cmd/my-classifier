@@ -79,6 +79,10 @@ h2 { font-size: 1.05rem; margin: 22px 0 8px; }
   border-radius: 10px;
 }
 
+.intro { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+.intro p { margin: 0 0 6px; overflow-wrap: anywhere; }
+.intro p:last-child { margin-bottom: 0; }
+
 .notice {
   margin: 0 0 12px;
   padding: 10px 12px;
