@@ -25,8 +25,27 @@
 
     <section id="panel-classify" role="tabpanel" aria-labelledby="tab-classify">
       <div class="intro">
-        <p>재무·회계·인사팀에 들어오는 사내 요청을 한 줄 넣으면, 어느 담당(지출·지급 / 급여·4대보험 / 세무·증빙 / 인사·근태 / 기타)에게 보낼지와 긴급도(높음·보통·낮음)를 알려 줍니다.</p>
-        <p>이렇게 넣어 보세요: «거래처 대금 오늘까지 입금해 주세요» · «지난달 야근수당이 급여에 빠졌어요» · «세금계산서 발행 부탁드립니다» · «연차 쓴 날이 근태에 안 올라갔어요»</p>
+        <p class="intro-title">💡 이렇게 쓰는 도구예요</p>
+        <p class="intro-line">재무·회계·인사팀에 온 요청 한 줄 → 담당 칸 + 긴급도를 알려 줘요</p>
+        <div class="tag-row">
+          <span class="tag-label">담당 칸</span>
+          <ul class="tags">
+            <li>지출·지급</li><li>급여·4대보험</li><li>세무·증빙</li><li>인사·근태</li><li>기타</li>
+          </ul>
+        </div>
+        <div class="tag-row">
+          <span class="tag-label">긴급도</span>
+          <ul class="tags">
+            <li>높음</li><li>보통</li><li>낮음</li>
+          </ul>
+        </div>
+        <p class="intro-title intro-sub">✏️ 이렇게 넣어 보세요 (누르면 입력칸에 들어가요)</p>
+        <div class="examples" id="examples">
+          <button type="button" class="example">거래처 대금 오늘까지 입금해 주세요</button>
+          <button type="button" class="example">지난달 야근수당이 급여에 빠졌어요</button>
+          <button type="button" class="example">세금계산서 발행 부탁드립니다</button>
+          <button type="button" class="example">연차 쓴 날이 근태에 안 올라갔어요</button>
+        </div>
       </div>
       <p class="notice">실제 이름 · 계좌 · 주민번호는 넣지 마세요</p>
       <label for="req" class="label">요청 한 줄</label>

@@ -391,6 +391,13 @@
     $('tab-score').addEventListener('click', function () { selectTab('score'); });
     $('btn-classify').addEventListener('click', onClassify);
     $('btn-sample').addEventListener('click', onSample);
+    // 안내 상자의 예시 — 누르면 입력 칸에 넣기만 한다(분류는 하지 않는다).
+    $('examples').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.example') : null;
+      if (!b) return;
+      $('req').value = b.textContent;
+      $('req').focus();
+    });
     $('btn-score').addEventListener('click', onScore);
     $('btn-ai').addEventListener('click', onAiScore);
     $('btn-download').addEventListener('click', onDownload);

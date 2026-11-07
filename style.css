@@ -79,9 +79,47 @@ h2 { font-size: 1.05rem; margin: 22px 0 8px; }
   border-radius: 10px;
 }
 
-.intro { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
-.intro p { margin: 0 0 6px; overflow-wrap: anywhere; }
-.intro p:last-child { margin-bottom: 0; }
+/* 처음 온 사람을 위한 안내 상자 */
+.intro {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.intro p { margin: 0; overflow-wrap: anywhere; }
+.intro-title { font-weight: 700; color: var(--text); }
+.intro-line { color: var(--muted); margin-bottom: 8px !important; }
+.intro-sub { margin-top: 12px !important; margin-bottom: 6px !important; }
+.tag-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 6px; }
+.tag-label { flex: none; min-width: 3.6em; padding-top: 2px; font-weight: 600; color: var(--text); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.tags li {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.examples { display: flex; flex-direction: column; gap: 6px; }
+.example {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.example:hover, .example:focus-visible { border-color: var(--accent); outline: 0; }
 
 .notice {
   margin: 0 0 12px;
