@@ -49,8 +49,16 @@ body {
   padding: 16px;
 }
 
-.head { margin: 4px 0 12px; }
+/* 맨 위 제목 띠 — 단추와 같은 초록 계열의 진한 색(밝은·어두운 화면 모두 같은 색) */
+.head {
+  margin: 4px 0 16px;
+  padding: 20px 18px;
+  background: #14633a;
+  border-radius: 12px;
+}
 h1 { font-size: 1.25rem; margin: 0; }
+.head h1 { color: #ffffff; }
+.head .sub { color: rgba(255, 255, 255, 0.8); }
 h2 { font-size: 1.05rem; margin: 22px 0 8px; }
 .sub { margin: 2px 0 0; font-size: 0.8rem; color: var(--muted); }
 
