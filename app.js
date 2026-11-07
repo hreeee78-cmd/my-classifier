@@ -98,6 +98,17 @@
     ['btn-classify', 'btn-sample', 'btn-score', 'btn-ai'].forEach(function (id) { $(id).disabled = on; });
   }
 
+  // 채점 단추 글자 — 평소 / 채점 중 / 끝남. 끝남은 .done 모양(흰 바탕·초록 테두리).
+  var SCORE_LABEL = {
+    'btn-score': { idle: '규칙으로 채점', busy: '⏳ 채점 중…', done: '✓ 규칙 채점 완료' },
+    'btn-ai': { idle: 'AI로 채점', busy: '⏳ 채점 중…', done: '✓ AI 채점 완료' }
+  };
+  function scoreBtn(id, mode) {
+    var b = $(id);
+    b.textContent = SCORE_LABEL[id][mode];
+    b.classList.toggle('done', mode === 'done');
+  }
+
   function onClassify() {
     if (busy) return;
     var raw = $('req').value.trim();
@@ -166,6 +177,8 @@
     if (busy) return;
     if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setStatus('정답 파일을 읽는 중…');
+    scoreBtn('btn-score', 'busy');
+    $('btn-score').disabled = true;
     loadJson('data/answer.json').then(function (answers) {
       setStatus('');
       var r = Rules.evaluate(answers, state.criteria, state.keywords, Mask.mask);
@@ -208,7 +221,13 @@
         list.appendChild(li);
       });
       $('score-out').hidden = false;
-    }).catch(function (e) { setStatus(e.message); });
+      scoreBtn('btn-score', 'done');
+      $('btn-score').disabled = false;
+    }).catch(function (e) {
+      scoreBtn('btn-score', 'idle');
+      $('btn-score').disabled = false;
+      setStatus(e.message);
+    });
   }
 
   // ---- 채점: AI ----
@@ -280,6 +299,7 @@
     if (busy) return;
     if (!state.criteria || !state.keywords) { setStatus('기준을 아직 불러오지 못했어요. 잠시 뒤에 다시 해 보세요.'); return; }
     setBusy(true);
+    scoreBtn('btn-ai', 'busy');
     $('ai-out').hidden = true;
     var prog = $('ai-progress');
     try {
@@ -364,7 +384,9 @@
         })
       };
       $('ai-out').hidden = false;
+      scoreBtn('btn-ai', 'done');
     } catch (e) {
+      scoreBtn('btn-ai', 'idle');
       prog.hidden = true;
       setStatus(e.message);
     } finally {
