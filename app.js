@@ -153,23 +153,39 @@
   function renderLegend(c) {
     var box = $('legend');
     box.textContent = '';
-    function block(title, items) {
-      var h = document.createElement('h3');
-      h.textContent = title;
-      box.appendChild(h);
-      var ul = document.createElement('ul');
-      items.forEach(function (t) {
-        var li = document.createElement('li');
-        li.textContent = t;
-        ul.appendChild(li);
-      });
-      box.appendChild(ul);
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text) e.textContent = text;
+      return e;
     }
-    block('칸 (앞 칸일수록 우선)', c.categories.slice().sort(function (a, b) { return a.order - b.order; })
-      .map(function (x) { return x.order + '. ' + x.name + ' — ' + x.definition; }));
-    block('긴급도', c.urgency.map(function (u) { return u.name + ' — ' + u.definition; }));
-    if (c.rules && c.rules.length) block('애매할 때', c.rules);
-    if (c.worst_mistake) block('가장 나쁜 실수', [c.worst_mistake]);
+    // 꼬리표 + 옆에 설명 — 좁은 화면에서는 설명이 꼬리표 아래로 내려간다
+    function rows(title, list) {
+      box.appendChild(el('h3', '', title));
+      list.forEach(function (x) {
+        var row = el('div', 'lg-row');
+        var tag = el('span', 'lg-tag', x.tag);
+        if (x.level !== undefined) tag.dataset.level = String(x.level);
+        row.appendChild(tag);
+        row.appendChild(el('span', 'lg-desc', x.desc));
+        box.appendChild(row);
+      });
+    }
+    // 문장만 있는 상자(애매할 때 · 가장 나쁜 실수)
+    function note(cls, title, items) {
+      var d = el('div', 'lg-note ' + cls);
+      d.appendChild(el('p', 'lg-note-title', title));
+      var ul = el('ul');
+      items.forEach(function (t) { ul.appendChild(el('li', '', t)); });
+      d.appendChild(ul);
+      box.appendChild(d);
+    }
+    var NUM = ['①', '②', '③', '④', '⑤'];
+    rows('칸 (앞 칸일수록 우선)', c.categories.slice().sort(function (a, b) { return a.order - b.order; })
+      .map(function (x) { return { tag: (NUM[x.order - 1] || x.order) + ' ' + x.name, desc: x.definition }; }));
+    rows('긴급도', c.urgency.map(function (u, i) { return { tag: u.name, desc: u.definition, level: i }; }));
+    if (c.rules && c.rules.length) note('lg-soft', '🤔 애매할 때', c.rules);
+    if (c.worst_mistake) note('lg-warn', '⚠️ 가장 나쁜 실수', [c.worst_mistake]);
   }
 
   // ---- 채점: 규칙 ----
