@@ -188,6 +188,27 @@
     if (c.worst_mistake) note('lg-warn', '⚠️ 가장 나쁜 실수', [c.worst_mistake]);
   }
 
+  // 틀린 문장 한 줄의 «이름표 + 칸 꼬리표 + 긴급도 꼬리표». 긴급도 색은 분류 결과와 같다.
+  function wrongGroup(label, cat, urg) {
+    var g = document.createElement('span');
+    g.className = 'w-grp';
+    var l = document.createElement('span');
+    l.className = 'w-lbl';
+    l.textContent = label;
+    var c = document.createElement('span');
+    c.className = 'lg-tag';
+    c.textContent = cat || '-';
+    var u = document.createElement('span');
+    u.className = 'lg-tag';
+    u.textContent = urg || '-';
+    var lv = state.criteria.urgency.map(function (x) { return x.name; }).indexOf(urg);
+    if (lv >= 0) u.dataset.level = String(lv);
+    g.appendChild(l);
+    g.appendChild(c);
+    g.appendChild(u);
+    return g;
+  }
+
   // ---- 채점: 규칙 ----
   function onScore() {
     if (busy) return;
@@ -206,7 +227,7 @@
       $('m-spend').textContent = r.spendMissed + ' / ' + r.spendTotal;
 
       $('conditions').textContent =
-        '잰 조건: 규칙만 사용(AI 없음) · 낱말 keywords.json v' + state.keywords.version +
+        '규칙만 사용(AI 없음) · 낱말 keywords.json v' + state.keywords.version +
         ' (' + state.keywords.source + ' ' + state.keywords.practice_count + '문장에서 추출) · ' +
         '정답 data/answer.json ' + r.n + '개 · 가린 문장으로 판정. ' +
         '정답은 AI 초안을 사람이 확인해 확정한 것이라 점수는 낙관적으로 읽습니다.';
@@ -222,9 +243,14 @@
         t.className = 'w-text';
         t.textContent = w.text;
 
-        var d = document.createElement('p');
+        var d = document.createElement('div');
         d.className = 'w-diff';
-        d.textContent = '정답 ' + w.answerCat + '·' + w.answerUrg + ' → 판정 ' + w.predCat + '·' + w.predUrg;
+        d.appendChild(wrongGroup('정답', w.answerCat, w.answerUrg));
+        var arrow = document.createElement('span');
+        arrow.className = 'w-arrow';
+        arrow.textContent = '→';
+        d.appendChild(arrow);
+        d.appendChild(wrongGroup('판정', w.predCat, w.predUrg));
 
         li.appendChild(t);
         li.appendChild(d);
@@ -365,7 +391,7 @@
       addRow(body, '답을 못 받은 문장', '-', ai.unanswered + '건');
 
       $('ai-cond').textContent =
-        '잰 조건: AI = ' + modelName + ', 가린 문장 ' + BATCH + '개씩 ' + batches.length + '번 · 시간 초과 · 503 · 429 묶음은 한 번만 다시 보냄(503·429는 ' + (RETRY_WAIT_MS / 1000) + '초 쉼) · ' +
+        'AI = ' + modelName + ', 가린 문장 ' + BATCH + '개씩 ' + batches.length + '번 · 시간 초과 · 503 · 429 묶음은 한 번만 다시 보냄(503·429는 ' + (RETRY_WAIT_MS / 1000) + '초 쉼) · ' +
         '답을 못 받은 문장 ' + ai.unanswered + '건은 오답으로 셈 · 규칙 = keywords.json v' + state.keywords.version +
         ' · 정답 data/answer.json ' + n + '개. 정답은 AI 초안을 사람이 확인해 확정한 것이라 점수는 낙관적으로 읽습니다.' +
         (firstError ? ' (AI 실패 이유: ' + firstError + ')' : '');

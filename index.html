@@ -73,7 +73,11 @@
     </section>
 
     <section id="panel-score" role="tabpanel" aria-labelledby="tab-score" hidden>
-      <p class="hint">정답이 있는 문장으로 점수를 매겨요. 단추를 누를 때만 정답 파일을 열어요.</p>
+      <div class="intro">
+        <p class="intro-title">📊 이렇게 채점해요</p>
+        <p class="intro-line">정답을 붙여 둔 문장으로 규칙과 AI를 나란히 재요. 단추를 누를 때만 정답 파일을 열어요.</p>
+        <p class="intro-line last">⚠️ 지출·지급을 다른 칸으로 놓친 수는 따로 세요</p>
+      </div>
       <div class="score-row">
         <button id="btn-score" class="btn" type="button">규칙으로 채점</button>
         <button id="btn-ai" class="btn" type="button">AI로 채점</button>
@@ -81,13 +85,18 @@
       <p id="ai-progress" class="progress" role="status" hidden></p>
 
       <div id="ai-out" hidden>
-        <h2>규칙 · AI 나란히</h2>
-        <table class="cmp">
-          <thead><tr><th scope="col">지표</th><th scope="col">규칙</th><th scope="col" id="th-ai">AI</th></tr></thead>
-          <tbody id="cmp-body"></tbody>
-        </table>
-        <p id="ai-cond" class="cond"></p>
-        <button id="btn-download" class="btn secondary" type="button">AI 채점 결과 내려받기</button>
+        <div class="box">
+          <h2 class="box-title">📈 규칙 · AI 나란히</h2>
+          <table class="cmp">
+            <thead><tr><th scope="col">지표</th><th scope="col">규칙</th><th scope="col" id="th-ai">AI</th></tr></thead>
+            <tbody id="cmp-body"></tbody>
+          </table>
+        </div>
+        <div class="box soft">
+          <h2 class="box-title">📏 잰 조건</h2>
+          <p id="ai-cond" class="cond"></p>
+        </div>
+        <button id="btn-download" class="btn secondary" type="button">⬇️ AI 채점 결과 내려받기</button>
       </div>
 
       <div id="score-out" hidden>
@@ -97,9 +106,14 @@
           <li><span class="m-label">둘 다 맞은 수</span><span class="m-val" id="m-both"></span></li>
           <li class="warn"><span class="m-label" id="m-spend-label"></span><span class="m-val" id="m-spend"></span></li>
         </ul>
-        <p id="conditions" class="cond"></p>
-        <h2>틀린 문장 <span id="wrong-count"></span></h2>
-        <ol id="wrong-list" class="wrong"></ol>
+        <div class="box soft">
+          <h2 class="box-title">📏 잰 조건</h2>
+          <p id="conditions" class="cond"></p>
+        </div>
+        <div class="box">
+          <h2 class="box-title">❌ 틀린 문장 <span id="wrong-count"></span></h2>
+          <ol id="wrong-list" class="wrong"></ol>
+        </div>
       </div>
     </section>
   </main>
