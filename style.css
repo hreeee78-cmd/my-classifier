@@ -104,6 +104,7 @@ h2 { font-size: 1.05rem; margin: 22px 0 8px; }
   color: var(--muted);
   font-size: 0.8rem;
 }
+.intro .intro-more { margin-top: 8px; font-size: 0.78rem; color: var(--muted); }
 .examples { display: flex; flex-direction: column; gap: 6px; }
 .example {
   display: block;
