@@ -229,8 +229,7 @@
       $('conditions').textContent =
         '규칙만 사용(AI 없음) · 낱말 keywords.json v' + state.keywords.version +
         ' (' + state.keywords.source + ' ' + state.keywords.practice_count + '문장에서 추출) · ' +
-        '정답 data/answer.json ' + r.n + '개 · 가린 문장으로 판정. ' +
-        '정답은 AI 초안을 사람이 확인해 확정한 것이라 점수는 낙관적으로 읽습니다.';
+        '정답 data/answer.json ' + r.n + '개 · 가린 문장으로 판정.';
 
       $('wrong-count').textContent = '(' + r.wrong.length + '개)';
       var list = $('wrong-list');
@@ -393,7 +392,7 @@
       $('ai-cond').textContent =
         'AI = ' + modelName + ', 가린 문장 ' + BATCH + '개씩 ' + batches.length + '번 · 시간 초과 · 503 · 429 묶음은 한 번만 다시 보냄(503·429는 ' + (RETRY_WAIT_MS / 1000) + '초 쉼) · ' +
         '답을 못 받은 문장 ' + ai.unanswered + '건은 오답으로 셈 · 규칙 = keywords.json v' + state.keywords.version +
-        ' · 정답 data/answer.json ' + n + '개. 정답은 AI 초안을 사람이 확인해 확정한 것이라 점수는 낙관적으로 읽습니다.' +
+        ' · 정답 data/answer.json ' + n + '개.' +
         (firstError ? ' (AI 실패 이유: ' + firstError + ')' : '');
 
       lastAi = {
