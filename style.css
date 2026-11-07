@@ -98,7 +98,7 @@ h2 { font-size: 1.05rem; margin: 22px 0 8px; }
   line-height: 1.6;
 }
 .intro p { margin: 0; overflow-wrap: anywhere; }
-.intro-title { font-weight: 700; color: var(--text); }
+.intro-title { font-weight: 700; font-size: 1rem; line-height: 1.5; color: var(--text); }
 .intro-line { color: var(--muted); margin-bottom: 8px !important; }
 .intro-sub { margin-top: 12px !important; margin-bottom: 6px !important; }
 .tag-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 6px; }
