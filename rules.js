@@ -14,15 +14,8 @@
     return words.reduce(function (sum, w) { return sum + strip(w).length; }, 0);
   }
 
-  function euro(name) { // 받침이 있으면 «으로», 없거나 ㄹ 받침이면 «로»
-    var c = name.charCodeAt(name.length - 1) - 0xAC00;
-    if (c < 0 || c > 11171) return '으로';
-    var jong = c % 28;
-    return jong === 0 || jong === 8 ? '로' : '으로';
-  }
-
-  function quote(words) {
-    return words.slice(0, 3).map(function (w) { return '‘' + w + '’'; }).join('·');
+  function quote(words) { // «낱말» «낱말» (최대 3개)
+    return words.slice(0, 3).map(function (w) { return '«' + w + '»'; }).join(' ');
   }
 
   // 칸: 낱말 점수가 가장 높은 칸. 점수가 같으면 앞 칸. 걸리는 낱말이 없으면 마지막 칸(기타).
@@ -37,14 +30,14 @@
     scored.forEach(function (s) { if (s.score > 0 && (!best || s.score > best.score)) best = s; });
     if (!best) {
       var last = cats[cats.length - 1].name;
-      return { name: last, reason: '맞는 낱말이 없어 마지막 칸인 ' + last + euro(last) + ' 봤습니다' };
+      return { name: last, reason: '맞는 낱말 없음 → ' + last };
     }
     var tied = scored.filter(function (s) { return s.score === best.score; });
     if (tied.length > 1) {
-      return { name: best.name, reason: tied.map(function (s) { return s.name; }).join('·') +
-        '에 똑같이 걸려 앞 칸인 ' + best.name + euro(best.name) + ' 봤습니다' };
+      var others = tied.slice(1).map(function (s) { return s.name; }).join('·');
+      return { name: best.name, reason: quote(best.hit) + ' → ' + best.name + ' (' + others + '에도 걸려 앞 칸)' };
     }
-    return { name: best.name, reason: quote(best.hit) + ' 낱말이 있어 ' + best.name + euro(best.name) + ' 봤습니다' };
+    return { name: best.name, reason: quote(best.hit) + ' → ' + best.name };
   }
 
   // 긴급도: 앞선 단계(높음)의 낱말이 있으면 그 단계. 마지막 단계(낮음)는 나머지 전부.
@@ -53,20 +46,20 @@
     for (var i = 0; i < levels.length - 1; i++) {
       var words = ((keywords.urgency || {})[levels[i]] || {}).words || [];
       var hit = hits(words, masked);
-      if (hit.length) return { name: levels[i], reason: quote(hit) + ' 낱말이 있어 ' + levels[i] };
+      if (hit.length) return { name: levels[i], reason: quote(hit) + ' → ' + levels[i] };
     }
     var lastName = levels[levels.length - 1];
     var lowWords = ((keywords.urgency || {})[lastName] || {}).words || [];
     var lowHit = hits(lowWords, masked);
     return { name: lastName, reason: lowHit.length
-      ? quote(lowHit) + ' 처럼 묻는 말투라 ' + lastName
-      : '기한 낱말이 없어 ' + lastName };
+      ? quote(lowHit) + ' → ' + lastName
+      : '기한 낱말 없음 → ' + lastName };
   }
 
   function classify(masked, criteria, keywords) {
     var c = pickCategory(masked, criteria, keywords);
     var u = pickUrgency(masked, criteria, keywords);
-    return { category: c.name, urgency: u.name, reason: c.reason + ' / 긴급도는 ' + u.reason + '.' };
+    return { category: c.name, urgency: u.name, reason: c.reason + ' · ' + u.reason };
   }
 
   // 정답 목록과 견줘 센다. maskFn 으로 가린 문장을 만들어 그것으로 판정한다.

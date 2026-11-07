@@ -5,7 +5,7 @@
   'use strict';
 
   var $ = function (id) { return document.getElementById(id); };
-  var state = { criteria: null, keywords: null };
+  var state = { criteria: null, keywords: null, practice: null };
   var BATCH = 10;               // AI 채점은 10개씩
   var CLIENT_WAIT_MS = 75000;   // 서버(60초) 보다 조금 더 기다린다
   var busy = false;
@@ -65,13 +65,21 @@
   }
 
   // ---- 분류 ----
-  function showResult(masked, cat, urg, reason, src) {
+  // why 가 있으면 규칙으로 간 것(AI 실패 이유), 없으면 AI 가 가른 것
+  function showResult(masked, cat, urg, reason, src, why) {
     $('r-masked').textContent = masked;
     $('r-cat').textContent = cat;
     $('r-urg').textContent = urg;
     $('r-reason').textContent = reason;
     $('r-src').textContent = src;
+    $('r-why').textContent = why || '';
+    $('r-why').hidden = !why;
     $('result').hidden = false;
+  }
+
+  function setBusy(on) {
+    busy = on;
+    ['btn-classify', 'btn-sample', 'btn-score', 'btn-ai'].forEach(function (id) { $(id).disabled = on; });
   }
 
   function onClassify() {
@@ -82,31 +90,59 @@
     setStatus('');
     var masked = Mask.mask(raw);
     var btn = $('btn-classify');
-    busy = true;
-    btn.disabled = true;
+    setBusy(true);
     btn.textContent = 'AI가 분류하는 중…';
-    $('r-note').hidden = true;
 
     callAI([{ id: 'q', text: masked }]).then(function (res) {
       var hit = res.ok && res.results.filter(function (r) { return r.id === 'q'; })[0];
       if (hit) {
-        showResult(masked, hit.category, hit.urgency, hit.reason, 'AI · ' + res.model);
+        showResult(masked, hit.category, hit.urgency, hit.reason, 'AI(' + res.model + ')가 갈랐습니다');
         return;
       }
       var why = res.ok ? 'AI가 이 문장의 답을 주지 않았습니다' : res.error;
       var out = Rules.classify(masked, state.criteria, state.keywords);
-      showResult(masked, out.category, out.urgency, out.reason, '규칙 (AI 없음)');
-      var note = $('r-note');
-      note.textContent = 'AI 없이 규칙으로 갈랐습니다';
-      var small = document.createElement('small');
-      small.textContent = '(AI 실패: ' + why + ')';
-      note.appendChild(small);
-      note.hidden = false;
+      showResult(masked, out.category, out.urgency, out.reason, 'AI 없이 규칙으로 갈랐습니다', 'AI 실패: ' + why);
     }).then(function () {
-      busy = false;
-      btn.disabled = false;
-      btn.textContent = '분류';
+      setBusy(false);
+      btn.textContent = '분류하기';
     });
+  }
+
+  // 예시 문장 — 연습 문장 파일(data/practice.json)에서 하나 골라 입력 칸에 넣는다. 정답 파일은 열지 않는다.
+  function onSample() {
+    if (busy) return;
+    var pick = function (list) {
+      $('req').value = list[Math.floor(Math.random() * list.length)].text;
+      $('req').focus();
+    };
+    if (state.practice) { pick(state.practice); return; }
+    loadJson('data/practice.json').then(function (list) {
+      state.practice = list;
+      pick(list);
+    }).catch(function (e) { setStatus(e.message); });
+  }
+
+  // 칸과 긴급도의 뜻 — criteria.json 에서 그린다
+  function renderLegend(c) {
+    var box = $('legend');
+    box.textContent = '';
+    function block(title, items) {
+      var h = document.createElement('h3');
+      h.textContent = title;
+      box.appendChild(h);
+      var ul = document.createElement('ul');
+      items.forEach(function (t) {
+        var li = document.createElement('li');
+        li.textContent = t;
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+    block('칸 (앞 칸일수록 우선)', c.categories.slice().sort(function (a, b) { return a.order - b.order; })
+      .map(function (x) { return x.order + '. ' + x.name + ' — ' + x.definition; }));
+    block('긴급도', c.urgency.map(function (u) { return u.name + ' — ' + u.definition; }));
+    if (c.rules && c.rules.length) block('애매할 때', c.rules);
+    if (c.worst_mistake) block('가장 나쁜 실수', [c.worst_mistake]);
   }
 
   // ---- 채점: 규칙 ----
@@ -220,9 +256,7 @@
   async function onAiScore() {
     if (busy) return;
     if (!state.criteria || !state.keywords) { setStatus('기준 파일을 아직 읽지 못했습니다.'); return; }
-    busy = true;
-    var btns = [$('btn-ai'), $('btn-score'), $('btn-classify')];
-    btns.forEach(function (b) { b.disabled = true; });
+    setBusy(true);
     $('ai-out').hidden = true;
     var prog = $('ai-progress');
     try {
@@ -311,8 +345,7 @@
       prog.hidden = true;
       setStatus(e.message);
     } finally {
-      busy = false;
-      btns.forEach(function (x) { x.disabled = false; });
+      setBusy(false);
     }
   }
 
@@ -334,6 +367,7 @@
     $('tab-classify').addEventListener('click', function () { selectTab('classify'); });
     $('tab-score').addEventListener('click', function () { selectTab('score'); });
     $('btn-classify').addEventListener('click', onClassify);
+    $('btn-sample').addEventListener('click', onSample);
     $('btn-score').addEventListener('click', onScore);
     $('btn-ai').addEventListener('click', onAiScore);
     $('btn-download').addEventListener('click', onDownload);
@@ -344,6 +378,8 @@
     Promise.all([loadJson('criteria.json'), loadJson('keywords.json')]).then(function (v) {
       state.criteria = v[0];
       state.keywords = v[1];
+      $('sub').textContent = state.criteria.owner + ' · version ' + state.criteria.version;
+      renderLegend(state.criteria);
     }).catch(function (e) {
       var local = location.protocol === 'file:';
       setStatus(e.message + (local

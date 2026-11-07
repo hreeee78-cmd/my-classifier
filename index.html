@@ -3,12 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>요청 분류기 · 규칙 기준선</title>
+  <title>사내 재무·회계·인사 요청 분류기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400..700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="wrap">
-    <h1>요청 분류기 <span class="tag">규칙 기준선 · AI 없음</span></h1>
+    <header class="head">
+      <h1>사내 재무·회계·인사 요청 분류기</h1>
+      <p id="sub" class="sub"></p>
+    </header>
 
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-classify" aria-controls="panel-classify" aria-selected="true">분류</button>
@@ -21,20 +27,28 @@
       <p class="notice">실제 이름 · 계좌 · 주민번호는 넣지 마세요</p>
       <label for="req" class="label">요청 한 줄</label>
       <textarea id="req" rows="3" placeholder="예) 거래처 대금 오늘까지 입금해야 해요"></textarea>
-      <button id="btn-classify" class="btn" type="button">분류</button>
+      <div class="btn-row">
+        <button id="btn-classify" class="btn inline" type="button">분류하기</button>
+        <button id="btn-sample" class="btn inline ghost" type="button">예시 문장 넣기</button>
+      </div>
 
-      <dl id="result" class="result" hidden>
-        <dt>가린 문장</dt><dd id="r-masked"></dd>
-        <dt>칸</dt><dd id="r-cat" class="big"></dd>
-        <dt>긴급도</dt><dd id="r-urg" class="big"></dd>
-        <dt>이유</dt><dd id="r-reason"></dd>
-        <dt>가른 쪽</dt><dd id="r-src"></dd>
-      </dl>
-      <p id="r-note" class="fallback" hidden></p>
+      <div id="result" class="card" hidden>
+        <div class="row"><span class="k">가린 문장</span><span class="v" id="r-masked"></span></div>
+        <div class="row"><span class="k">칸</span><span class="v strong" id="r-cat"></span></div>
+        <div class="row"><span class="k">긴급도</span><span class="v strong" id="r-urg"></span></div>
+        <div class="row"><span class="k">이유</span><span class="v" id="r-reason"></span></div>
+        <p id="r-src" class="src"></p>
+        <p id="r-why" class="src" hidden></p>
+      </div>
+
+      <details class="legend">
+        <summary>칸과 긴급도의 뜻</summary>
+        <div id="legend"></div>
+      </details>
     </section>
 
     <section id="panel-score" role="tabpanel" aria-labelledby="tab-score" hidden>
-      <p class="hint">정답 파일의 문장을 규칙으로 판정해 맞춰 봅니다. 단추를 누를 때만 정답 파일을 엽니다.</p>
+      <p class="hint">정답 파일의 문장을 판정해 맞춰 봅니다. 단추를 누를 때만 정답 파일을 엽니다.</p>
       <button id="btn-score" class="btn" type="button">규칙으로 채점</button>
       <button id="btn-ai" class="btn" type="button">AI로 채점</button>
       <p id="ai-progress" class="progress" role="status" hidden></p>
